@@ -1,46 +1,59 @@
 import streamlit as st
 import requests
 
-API_URL = "http://65.0.85.20:8000" #placeholder hai
+API_URL = "http://65.0.85.20:8000"
 API_KEY = "your-api-key"  # optional if you add auth
 
 st.set_page_config(page_title="Smart Resume Tool", layout="wide")
 st.title("📄 Smart Resume Analyzer")
 
-st.header("🧠 Upload Resume")
+st.markdown("## 🧠 Upload and Analyze Resume")
+
 uploaded_file = st.file_uploader("Upload PDF Resume", type=["pdf"])
 
 def render_resume_data(data):
-    st.subheader("👤 Basic Information")
-    col1, col2 = st.columns(2)
-    col1.markdown(f"**Name:** {data.get('name', 'N/A')}")
-    col1.markdown(f"**Email:** {data.get('email', 'N/A')}")
-    col2.markdown(f"**Phone:** {data.get('mobile_number', 'N/A')}")
-    col2.markdown(f"**Total Experience:** {round(data.get('total_experience', 0), 2)} years")
+    st.markdown("## 👤 Basic Information")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Name", data.get("name", "N/A"))
+    col2.metric("Email", data.get("email", "N/A"))
+    col3.metric("Phone", data.get("mobile_number", "N/A"))
 
-    st.markdown("---")
-    st.subheader("💼 Experience")
+    col4, col5 = st.columns(2)
+    col4.metric("Experience", f"{round(data.get('total_experience', 0), 2)} years")
+    degree_list = data.get("degree", [])
+    if degree_list:
+        col5.markdown("**Degree**")
+        for deg in degree_list:
+            col5.write(deg)
+
+    st.divider()
+
+    st.markdown("## 💼 Work Experience")
     exp = data.get("experience", [])
     for i in range(0, len(exp), 4):
-        with st.expander(f"{exp[i+1] if i+1 < len(exp) else 'Role'} at {exp[i] if i < len(exp) else 'Company'}"):
-            st.markdown(f"**Duration:** {exp[i+2] if i+2 < len(exp) else ''}")
-            st.markdown(f"**Location:** {exp[i+3] if i+3 < len(exp) else ''}")
+        with st.expander(f"**{exp[i+1] if i+1 < len(exp) else 'Role'}** @ {exp[i] if i < len(exp) else 'Company'}"):
+            cols = st.columns(2)
+            cols[0].markdown(f"📅 **Duration:** {exp[i+2] if i+2 < len(exp) else ''}")
+            cols[1].markdown(f"📍 **Location:** {exp[i+3] if i+3 < len(exp) else ''}")
             for j in range(i+4, min(i+10, len(exp))):
                 st.markdown(f"- {exp[j]}")
 
-    st.markdown("---")
-    st.subheader("🎓 Education")
-    degrees = data.get("degree", [])
-    for degree in degrees:
-        st.markdown(f"- {degree}")
+    st.divider()
 
-    st.markdown("---")
-    st.subheader("🧠 Skills")
+    st.markdown("## 🧠 Skills")
     skills = data.get("skills", [])
     if skills:
-        st.markdown(
-            ", ".join([f"`{skill}`" for skill in skills])
-        )
+        skill_tags = " ".join([f"<span style='background-color:#f0f2f6; padding:6px 10px; border-radius:16px; margin:4px; display:inline-block;'>{skill}</span>" for skill in skills])
+        st.markdown(f"<div style='line-height:2; flex-wrap:wrap'>{skill_tags}</div>", unsafe_allow_html=True)
+
+    st.divider()
+
+    # Optional section
+    st.markdown("## 🔗 Other Information")
+    col6, col7 = st.columns(2)
+    col6.markdown(f"**College Name:** {data.get('college_name', 'N/A')}")
+    col7.markdown(f"**LinkedIn:** {data.get('linkedin', 'N/A')}")
+
 
 if uploaded_file:
     if st.button("Parse Resume"):
