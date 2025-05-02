@@ -65,6 +65,9 @@ def render_resume_data(data):
     col6.markdown(f"**College Name:** {data.get('college_name', 'N/A')}")
     col7.markdown(f"**LinkedIn:** {data.get('linkedin', 'N/A')}")
 
+    st.divider()
+    with st.expander("🛠 Show Raw JSON Output"):
+        st.json(data)
 
 if uploaded_file:
     if st.button("Parse Resume"):
