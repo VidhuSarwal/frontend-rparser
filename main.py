@@ -14,17 +14,25 @@ uploaded_file = st.file_uploader("Upload PDF Resume", type=["pdf"])
 def render_resume_data(data):
     st.markdown("## 👤 Basic Information")
     col1, col2, col3 = st.columns(3)
-    col1.metric("Name", data.get("name", "N/A"))
-    col2.metric("Email", data.get("email", "N/A"))
-    col3.metric("Phone", data.get("mobile_number", "N/A"))
+    with col1:
+        st.markdown("**Name**")
+        st.write(data.get("name", "N/A"))
+    with col2:
+        st.markdown("**Email**")
+        st.write(data.get("email", "N/A"))
+    with col3:
+        st.markdown("**Phone**")
+        st.write(data.get("mobile_number", "N/A"))
 
     col4, col5 = st.columns(2)
-    col4.metric("Experience", f"{round(data.get('total_experience', 0), 2)} years")
-    degree_list = data.get("degree", [])
-    if degree_list:
-        col5.markdown("**Degree**")
+    with col4:
+        st.markdown("**Experience**")
+        st.write(f"{round(data.get('total_experience', 0), 2)} years")
+    with col5:
+        st.markdown("**Degree**")
+        degree_list = data.get("degree", [])
         for deg in degree_list:
-            col5.write(deg)
+            st.write(deg)
 
     st.divider()
 
@@ -43,12 +51,15 @@ def render_resume_data(data):
     st.markdown("## 🧠 Skills")
     skills = data.get("skills", [])
     if skills:
-        skill_tags = " ".join([f"<span style='background-color:#f0f2f6; padding:6px 10px; border-radius:16px; margin:4px; display:inline-block;'>{skill}</span>" for skill in skills])
+        skill_tags = " ".join([
+            f"<span style='color:#fff; background-color:#444; padding:6px 12px; "
+            f"border-radius:16px; margin:4px; display:inline-block;'>{skill}</span>"
+            for skill in skills
+        ])
         st.markdown(f"<div style='line-height:2; flex-wrap:wrap'>{skill_tags}</div>", unsafe_allow_html=True)
 
     st.divider()
 
-    # Optional section
     st.markdown("## 🔗 Other Information")
     col6, col7 = st.columns(2)
     col6.markdown(f"**College Name:** {data.get('college_name', 'N/A')}")
